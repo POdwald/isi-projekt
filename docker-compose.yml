@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./api
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - '8000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: django_db
+      POSTGRES_USER: django_user
+      POSTGRES_PASSWORD: django_password
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: "pg_isready -U django_user -d django_db"
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    volumes:
+      - './frontend:/app'
+    depends_on:
+      - backend
