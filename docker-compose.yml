@@ -21,7 +21,8 @@ services:
       - '5432:5432'
     healthcheck:
       test: "pg_isready -U django_user -d django_db"
-      timeout: 5s
+      interval: 5s
+      timeout: 2s
       retries: 5
 
   frontend:
