@@ -1,4 +1,3 @@
-# Use the Python base image with the desired version
 FROM python:3.11.2
 
 # Set environment variables to control Python behavior
@@ -20,5 +19,4 @@ COPY . /code/
 # Expose the port on which your Django application will run (e.g., 8000)
 EXPOSE 8000
 
-# Command to run your Django application (adjust as needed)
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
