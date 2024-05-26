@@ -1,18 +1,46 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import { api, setAuthToken } from '../utils/apiService';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null); // User data (name, email, etc.)
+  const [user, setUser] = useState(null);
 
-  const login = (userData) => {
-    // Assuming userData contains user information
-    setUser(userData);
-    setIsAuthenticated(true);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+      api.get('/profile/')
+        .then(response => {
+          setUser(response.data);
+          setIsAuthenticated(true);
+        })
+        .catch(error => {
+          console.error('Error fetching user profile:', error);
+          setIsAuthenticated(false);
+        });
+    }
+  }, []);
+
+  const login = async (username, password) => {
+    try {
+      const response = await api.post('/token/', { username, password });
+      const { access: token } = response.data;
+      localStorage.setItem('token', token);
+      setAuthToken(token);
+      const userResponse = await api.get('/profile/');
+      setUser(userResponse.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setIsAuthenticated(false);
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
+    setAuthToken(null);
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -24,4 +52,4 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-export { AuthContext, AuthProvider };
+export default AuthProvider;

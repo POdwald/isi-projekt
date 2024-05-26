@@ -3,7 +3,9 @@ from rest_framework import viewsets, permissions
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, get_user_model, login as auth_login
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .models import Course, Module, Lesson, Exam, Question, UserProgress
 from .serializers import (
     CourseSerializer, ModuleSerializer, LessonSerializer, ExamSerializer,
@@ -11,31 +13,6 @@ from .serializers import (
 )
 
 User = get_user_model()
-
-@csrf_exempt
-def login(request):
-    if request.method == 'POST':
-        # Parse JSON data from request body
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
-
-        # Validate input
-        if not username or not password:
-            return JsonResponse({'error': 'Invalid input'}, status=400)
-
-        # Authenticate user
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            # Login the user
-            login(request, user)
-            return JsonResponse({'message': 'Login successful'})
-        else:
-            return JsonResponse({'error': 'Invalid credentials'}, status=400)
-
-    # Return error for unsupported methods
-    return JsonResponse({'error': 'Method not allowed'}, status=405)
-
 
 @csrf_exempt
 def signup(request):
@@ -66,6 +43,16 @@ def signup(request):
 
     # Return error for unsupported methods
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    profile_data = {
+        'username': user.username,
+        'email': user.email
+    }
+    return JsonResponse(profile_data)
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()

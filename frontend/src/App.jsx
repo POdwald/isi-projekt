@@ -4,7 +4,7 @@ import HomePage from './pages/HomePage';
 import CoursesPage from './pages/CoursesPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import { AuthProvider } from './contexts/AuthContext';
+import AuthProvider from './contexts/AuthContext';
 
 const App = () => {
   return (

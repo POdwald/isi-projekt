@@ -40,7 +40,7 @@ const SignupPage = () => {
   return (
     <>
       <Header/>
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" sx={{ marginBottom: '48px' }}>
         <Box sx={{ mt: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             Sign Up
@@ -86,7 +86,7 @@ const SignupPage = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
+            <Button sx={{ marginTop: '20px' }} type="submit" variant="contained" color="primary" fullWidth>
               Sign Up
             </Button>
           </form>

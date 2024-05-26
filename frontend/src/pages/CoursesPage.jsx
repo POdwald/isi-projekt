@@ -5,12 +5,12 @@ import { Container, Box, Typography } from '@mui/material';
 
 const CoursesPage = () => {
   return (
-    <div>
-        <Header />
-        <Container>
-        </Container>
-        <Footer />
-    </div>
+    <>
+      <Header />
+      <Container>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

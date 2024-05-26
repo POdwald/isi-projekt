@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import { Link } from 'react-router-dom';
-import UserAvatar from './UserAvatar'; // Import your UserAvatar component
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'; // Import the dropdown arrow icon
+import UserAvatar from './UserAvatar';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { AuthContext } from '../contexts/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => {
@@ -22,8 +22,6 @@ const Header = () => {
     handleMenuClose();
   };
 
-  const userName = "John Doe"; // Replace from backend
-
   return (
     <AppBar position="static">
       <Toolbar>
@@ -35,7 +33,7 @@ const Header = () => {
         {isAuthenticated ? (
           <>
             <IconButton color="inherit" onClick={handleMenuOpen}>
-              <UserAvatar name={userName} /> {/* Render the user avatar */}
+              <UserAvatar name={user?.username} />
               <ArrowDropDownIcon />
             </IconButton>
             <Menu

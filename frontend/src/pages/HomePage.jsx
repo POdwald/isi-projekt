@@ -5,9 +5,9 @@ import { Container, Box, Typography } from '@mui/material';
 
 const HomePage = () => {
   return (
-    <div>
-        <Header />
-        <Container>
+    <>
+      <Header />
+      <Container maxWidth="sm" sx={{ marginBottom: '48px' }}>
         <Box sx={{ my: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             Welcome to the NotCoursera
@@ -16,9 +16,9 @@ const HomePage = () => {
             Explore our courses and start learning today!
           </Typography>
         </Box>
-        </Container>
-        <Footer />
-    </div>
+      </Container>
+      <Footer />
+    </>
   );
 };
 
