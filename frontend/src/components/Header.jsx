@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../contexts/UserContext';
 
 const Header = () => {
+  const navigateTo = useNavigate();
   const { isAuthenticated, logout } = useAuth();
   const { user } = useUser();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -22,10 +23,8 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     handleMenuClose();
-
-    if (location.pathname === '/') {
-      window.location.reload(); // Reload the page if on the home page
-    }
+    navigateTo('/');
+    window.location.reload();
   };
 
   const userName = user ? user.username : '';
@@ -49,8 +48,8 @@ const Header = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem onClick={handleLogout} component={Link} to="/">Logout</MenuItem>
               <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </>
         ) : (

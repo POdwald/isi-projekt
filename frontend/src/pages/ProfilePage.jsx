@@ -1,34 +1,17 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Container, Box, Typography, Button } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useUser } from '../contexts/UserContext';
 
 const ProfilePage = () => {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
 
-  const [profileData, setProfileData] = useState(null);
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      if (isAuthenticated) {
-        try {
-          const token = localStorage.getItem('token');
-          const profileData = await fetchUserProfile(token);
-          console.log(user)
-        } catch (error) {
-          console.log('Error fetching user data.', error)
-        }
-      }
-    };
-
-    loadUserProfile();
-  }, [isAuthenticated]);
-
   const handleChangePassword = () => {
-    // Redirect to change password page
     navigate('/change-password');
   };
 
@@ -36,23 +19,22 @@ const ProfilePage = () => {
     <>
       <Header />
       <Container>
-        {isAuthenticated && profileData && (
+        {isAuthenticated && user ? (
           <Box sx={{ mt: 4 }}>
             <Typography variant="h4" gutterBottom>
               Profile
             </Typography>
             <Typography variant="body1" gutterBottom>
-              Username: {profileData.username}
+              Username: {user.username}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              Email: {profileData.email}
+              Email: {user.email}
             </Typography>
             <Button variant="contained" onClick={handleChangePassword}>
               Change Your Password
             </Button>
           </Box>
-        )}
-        {!isAuthenticated && (
+        ) : (
           <Typography variant="body1" gutterBottom>
             Please log in to view your profile.
           </Typography>
