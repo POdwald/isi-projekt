@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
