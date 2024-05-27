@@ -1,37 +1,39 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, CircularProgress } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { login as loginService } from '../utils/authService';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigateTo = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     try {
-      const success = await loginService(username, password);
+      setLoading(true);
+      const success = await login(username, password);
       if (success) {
-        login(username, password); // Pass email and password separately
-        navigateTo('/'); // Redirect to home page after successful login
+        navigateTo('/');
       } else {
         setError('Invalid email or password');
       }
     } catch (error) {
       console.error('Error logging in:', error);
       setError('An error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
       <Header />
-      <Container maxWidth="sm" sx={{ marginBottom: '48px' }}>
+      <Container maxWidth="sm">
         <Box sx={{ mt: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             Login
@@ -41,35 +43,33 @@ const LoginPage = () => {
               {error}
             </Typography>
           )}
-          <form>
-            <TextField
-              label="Email or Username"
-              type="text"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button
-              sx={{ marginTop: '20px' }}
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={handleLogin}
-            >
-              Login
-            </Button>
-          </form>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            sx={{ marginTop: '20px' }}
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleLogin}
+            disabled={loading} // Disable button when loading
+          >
+            {loading ? <CircularProgress size={24} /> : 'Login'} {/* Show loading indicator */}
+          </Button>
         </Box>
       </Container>
       <Footer />

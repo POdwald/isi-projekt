@@ -14,7 +14,7 @@ router.register(r'progress', UserProgressViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('signup', signup, name='signup'),
+    path('signup/', signup, name='signup'),
     path('profile/', user_profile, name='user_profile'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

@@ -1,52 +1,46 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { api, setAuthToken } from '../utils/apiService';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { setAuthToken } from '../utils/apiService';
+import { login as loginService, logout as logoutService,  } from '../utils/authService';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setAuthToken(token);
-      api.get('/profile/')
-        .then(response => {
-          setUser(response.data);
-          setIsAuthenticated(true);
-        })
-        .catch(error => {
-          console.error('Error fetching user profile:', error);
-          setIsAuthenticated(false);
-        });
+      setIsAuthenticated(true);
     }
   }, []);
 
   const login = async (username, password) => {
     try {
-      const response = await api.post('/token/', { username, password });
-      const { access: token } = response.data;
-      localStorage.setItem('token', token);
-      setAuthToken(token);
-      const userResponse = await api.get('/profile/');
-      setUser(userResponse.data);
-      setIsAuthenticated(true);
+      const success = await loginService(username, password); // Use loginService to authenticate
+      if (success) {
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        setIsAuthenticated(false);
+        return false;
+      }
     } catch (error) {
       console.error('Error logging in:', error);
       setIsAuthenticated(false);
+      return false;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    setAuthToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
+    logoutService();
+    return true;
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

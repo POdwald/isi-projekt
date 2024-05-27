@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Container, TextField, Button, Typography, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Container, TextField, Button, Typography, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { api } from '../utils/apiService';
+import { signup as signupService } from '../utils/authService';
 
 const SignupPage = () => {
+  const navigateTo = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,27 +21,26 @@ const SignupPage = () => {
       return;
     }
     try {
-      const response = await api.post('signup', {
-        username,
-        email,
-        password,
-      });
-      setOpen(true);
-    } catch (err) {
-      console.error('Error registering user', err);
-      setError('Error registering user');
+      const success = await signupService(username, email, password);
+      if (success) {
+        setOpen(true)  // Display signup confirmation modal
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setError('An error occurred. Please try again later.');
     }
   };
   
   const handleClose = () => {
     setOpen(false);
-    // Redirect to login page or home page if needed
-    // For example: window.location.href = '/login';
+    navigateTo('/');
   };
 
   return (
     <>
-      <Header/>
+      <Header />
       <Container maxWidth="sm" sx={{ marginBottom: '48px' }}>
         <Box sx={{ mt: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -92,7 +93,7 @@ const SignupPage = () => {
           </form>
         </Box>
       </Container>
-      <Footer/>
+      <Footer />
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Signup Successful</DialogTitle>

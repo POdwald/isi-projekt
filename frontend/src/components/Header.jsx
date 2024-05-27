@@ -3,10 +3,12 @@ import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from 
 import { Link } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useUser } from '../contexts/UserContext';
 
 const Header = () => {
-  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useAuth();
+  const { user } = useUser();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => {
@@ -20,7 +22,13 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     handleMenuClose();
+
+    if (location.pathname === '/') {
+      window.location.reload(); // Reload the page if on the home page
+    }
   };
+
+  const userName = user ? user.username : '';
 
   return (
     <AppBar position="static">
@@ -33,7 +41,7 @@ const Header = () => {
         {isAuthenticated ? (
           <>
             <IconButton color="inherit" onClick={handleMenuOpen}>
-              <UserAvatar name={user?.username} />
+              <UserAvatar name={userName} />
               <ArrowDropDownIcon />
             </IconButton>
             <Menu
@@ -41,7 +49,7 @@ const Header = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={handleLogout} component={Link} to="/">Logout</MenuItem>
               <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>
             </Menu>
           </>

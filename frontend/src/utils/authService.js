@@ -1,6 +1,6 @@
 import { api, setAuthToken } from './apiService';
 
-const login = async (username, password) => { // Assuming the backend expects username and password
+const login = async (username, password) => {
   try {
     const response = await api.post('/token/', { username, password });
     const { access: token } = response.data;
@@ -13,9 +13,15 @@ const login = async (username, password) => { // Assuming the backend expects us
   }
 };
 
+const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  setAuthToken(null);
+};
+
 const refreshToken = async () => {
   try {
-    const refreshToken = localStorage.getItem('refreshToken'); // Assuming you store the refresh token in local storage
+    const refreshToken = localStorage.getItem('refreshToken');
     const response = await api.post('/token/refresh/', { refresh: refreshToken });
     const { access: token } = response.data;
     setAuthToken(token);
@@ -27,10 +33,17 @@ const refreshToken = async () => {
   }
 };
 
-const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
-  setAuthToken(null);
+const signup = async (username, email, password) => {
+  try {
+    const response = await api.post('/signup/', { username, email, password });
+    const { token } = response.data;
+    setAuthToken(token);
+    localStorage.setItem('token', token);
+    return true
+  } catch (error) {
+    console.error('Error signing up:', error);
+    return null; // Return null in case of signup failure
+  }
 };
 
-export { login, refreshToken, logout };
+export { login, logout, refreshToken, signup };
