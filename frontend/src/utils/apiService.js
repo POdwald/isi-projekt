@@ -14,4 +14,8 @@ const setAuthToken = (token) => {
     }
 };
 
-export { api, setAuthToken };
+const createCourse = (courseData) => {
+    return api.post('/create_course/', courseData);
+};
+
+export { api, setAuthToken, createCourse };

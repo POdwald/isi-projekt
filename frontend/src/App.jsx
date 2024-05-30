@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthProvider from './contexts/AuthContext';
 import UserProvider from './contexts/UserContext';
+import CreateCoursePage from './pages/CreateCoursePage';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/create-course" element={<CreateCoursePage />} />
           </Routes>
         </UserProvider>
       </AuthProvider>

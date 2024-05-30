@@ -1,9 +1,10 @@
 import json
-from rest_framework import viewsets, permissions
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate, get_user_model, login as auth_login
+from django.contrib.auth import get_user_model
+from rest_framework import status, viewsets, permissions
+from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import Course, Module, Lesson, Exam, Question, UserProgress
@@ -53,6 +54,17 @@ def user_profile(request):
         'email': user.email
     }
     return JsonResponse(profile_data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_course(request):
+    if request.method == 'POST':
+        serializer = CourseSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()

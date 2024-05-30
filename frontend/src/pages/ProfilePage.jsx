@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -13,6 +12,10 @@ const ProfilePage = () => {
 
   const handleChangePassword = () => {
     navigate('/change-password');
+  };
+
+  const handleCreateCourse = () => {
+    navigate('/create-course');
   };
 
   return (
@@ -32,6 +35,9 @@ const ProfilePage = () => {
             </Typography>
             <Button variant="contained" onClick={handleChangePassword}>
               Change Your Password
+            </Button>
+            <Button variant="contained" onClick={handleCreateCourse}>
+              Create a course.
             </Button>
           </Box>
         ) : (
