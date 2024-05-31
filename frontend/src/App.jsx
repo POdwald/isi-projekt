@@ -7,6 +7,7 @@ import ProfilePage from './pages/ProfilePage';
 import AuthProvider from './contexts/AuthContext';
 import UserProvider from './contexts/UserContext';
 import CreateCoursePage from './pages/CreateCoursePage';
+import CourseDetailPage from './pages/CourseDetailPage';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/create-course" element={<CreateCoursePage />} />
+            <Route path="/learn/:courseSlug" element={<CourseDetailPage />} />
           </Routes>
         </UserProvider>
       </AuthProvider>

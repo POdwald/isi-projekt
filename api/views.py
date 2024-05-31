@@ -66,10 +66,25 @@ def create_course(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+def course_detail(request, slug):
+    try:
+        course = Course.objects.get(slug=slug)
+        serializer = CourseSerializer(course)
+        return Response(serializer.data)
+    except Course.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()

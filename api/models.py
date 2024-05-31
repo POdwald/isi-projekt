@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
 
 class User(AbstractUser):
     # Add any additional fields or methods here
@@ -10,6 +11,13 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Generate slug if it's empty
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Course, self).save(*args, **kwargs)
 
 class Module(models.Model):
     course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)

@@ -37,7 +37,7 @@ const ProfilePage = () => {
               Change Your Password
             </Button>
             <Button variant="contained" onClick={handleCreateCourse}>
-              Create a course.
+              Create a course
             </Button>
           </Box>
         ) : (
