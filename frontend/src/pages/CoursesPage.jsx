@@ -1,29 +1,37 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Container, Box, Typography, Grid } from '@mui/material';
+import { Container, Box, Typography, Grid, Divider } from '@mui/material';
 import CourseCard from '../components/CourseCard';
 import { api } from '../utils/apiService';
+import { useAuth } from '../contexts/AuthContext';
 
 const CoursesPage = () => {
     const [courses, setCourses] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
+            setLoading(true);
             try {
-                const response = await api.get('/courses/');
-                setCourses(response.data);
+                if (isAuthenticated) {
+                    const enrolledResponse = await api.get('/enrolled_courses/');
+                    setEnrolledCourses(enrolledResponse.data);
+                }
+                const coursesResponse = await api.get('/courses/');
+                setCourses(coursesResponse.data);
                 setLoading(false);
             } catch (err) {
                 setError(err);
                 setLoading(false);
             }
         };
-
-        fetchCourses();
-    }, []);
+    
+        fetchData();
+    }, [isAuthenticated]);
 
     if (loading) {
         return (
@@ -56,8 +64,23 @@ const CoursesPage = () => {
     return (
         <>
             <Header />
-            <Container sx={{ mt: 4 }}>
-                <Typography variant="h4" gutterBottom>
+            <Container sx={{ mt: 4, mb: 4 }}>
+                {isAuthenticated && (
+                    <>
+                        <Typography variant="h4" gutterBottom>
+                            Enrolled Courses
+                        </Typography>
+                        <Grid container spacing={4} sx={{ mb: 4 }}>
+                            {enrolledCourses.map((course) => (
+                                <Grid item key={course.id} xs={12} sm={6} md={4}>
+                                    <CourseCard courseData={course} isEnrolled={true}  />
+                                </Grid>
+                            ))}
+                        </Grid>
+                        <Divider />
+                    </>
+                )}
+                <Typography variant="h4" sx={{ mt: 4 }} gutterBottom>
                     Available Courses
                 </Typography>
                 <Grid container spacing={4}>

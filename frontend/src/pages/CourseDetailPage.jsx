@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../utils/apiService';
-import { Typography, Grid, Paper, Divider, Button } from '@mui/material';
+import { Typography, Grid, Paper, Divider, Button, Container, Box, CircularProgress } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -10,37 +10,60 @@ const CourseDetailPage = () => {
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-  
+    const [enrolling, setEnrolling] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+
     useEffect(() => {
-      const fetchCourse = async () => {
-        try {
-          const response = await api.get(`/learn/${courseSlug}/`);
-          setCourse(response.data);
-          setLoading(false);
-        } catch (error) {
-          setError(error);
-          setLoading(false);
-        }
-      };
-  
-      fetchCourse();
+        const fetchCourse = async () => {
+            try {
+                const response = await api.get(`/learn/${courseSlug}/`);
+                setCourse(response.data);
+                setIsEnrolled(response.data.is_enrolled); // Set isEnrolled state based on response
+                setLoading(false);
+            } catch (error) {
+                setError(error);
+                setLoading(false);
+            }
+        };
+
+        fetchCourse();
     }, [courseSlug]);
-  
+
+    const handleEnroll = async () => {
+        setEnrolling(true);
+        try {
+            const response = await api.post(`/enroll/${courseSlug}/`);
+            setIsEnrolled(true); // Update isEnrolled state upon successful enrollment
+        } catch (error) {
+            setError(error);
+        } finally {
+            setEnrolling(false);
+        }
+    };
+
     if (loading) {
-      return <p>Loading...</p>;
-    }
-  
-    if (error) {
-      return <p>Error: {error.message}</p>;
-    }
-  
-    if (!course) {
         return (
             <>
                 <Header />
-                <Grid container justifyContent="center" style={{ padding: '20px' }}>
-                    <CircularProgress />
-                </Grid>
+                <Container sx={{ mb: 4 }}>
+                    <Typography variant="h4" align="center" sx={{ mt: 4 }}>
+                        Loading course...
+                    </Typography>
+                </Container>
+                <Footer />
+            </>
+        );
+    }
+
+    if (error) {
+        return (
+            <>
+                <Header />
+                <Container sx={{ mb: 4 }}>
+                    <Typography variant="h4" align="center" sx={{ mt: 4 }}>
+                        Error: {error.message}
+                    </Typography>
+                </Container>
                 <Footer />
             </>
         );
@@ -53,7 +76,7 @@ const CourseDetailPage = () => {
                 <Grid item xs={12} md={8}>
                     <Paper elevation={3} style={{ padding: '20px' }}>
                         <Typography variant="h3" gutterBottom>
-                            Course Detail: {course.title}
+                            {course.title}
                         </Typography>
                         <Divider style={{ marginBottom: '20px' }} />
                         <Typography variant="body1" gutterBottom>
@@ -62,9 +85,22 @@ const CourseDetailPage = () => {
                         <Typography variant="body2" gutterBottom>
                             Category: {course.category}
                         </Typography>
-                        <Button variant="contained" color="primary" style={{ marginTop: '20px' }}>
-                            Enroll Now
-                        </Button>
+                        <Box display="flex" justifyContent="flex-end" style={{ marginTop: '20px' }}>
+                            {isEnrolled ? (
+                                <Button variant="contained" color="secondary" disabled>
+                                    Already Enrolled
+                                </Button>
+                            ) : (
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    onClick={handleEnroll}
+                                    disabled={enrolling}
+                                >
+                                    {enrolling ? 'Enrolling...' : 'Enroll Now'}
+                                </Button>
+                            )}
+                        </Box>
                     </Paper>
                 </Grid>
             </Grid>

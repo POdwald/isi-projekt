@@ -3,11 +3,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status, viewsets, permissions
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import Course, Module, Lesson, Exam, Question, UserProgress
+from .models import Course, Module, Lesson, Exam, Question, UserProgress, Enrollment
 from .serializers import (
     CourseSerializer, ModuleSerializer, LessonSerializer, ExamSerializer,
     QuestionSerializer, UserProgressSerializer, UserSerializer
@@ -65,15 +67,88 @@ def create_course(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def enroll_in_course(request, course_slug):
+    course = get_object_or_404(Course, slug=course_slug)
+    enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
+    if created:
+        return Response({'status': 'enrolled'})
+    else:
+        return Response({'status': 'already_enrolled'})
 
 @api_view(['GET'])
-def course_detail(request, slug):
-    try:
-        course = Course.objects.get(slug=slug)
+@permission_classes([IsAuthenticated])
+def enrolled_courses(request):
+    # Retrieve enrolled courses for the current user
+    enrolled_courses = Enrollment.objects.filter(user=request.user).values_list('course', flat=True)
+    courses = Course.objects.filter(id__in=enrolled_courses)
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+class CourseDetailView(APIView):
+    def get(self, request, course_slug):
+        course = get_object_or_404(Course, slug=course_slug)
         serializer = CourseSerializer(course)
         return Response(serializer.data)
-    except Course.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+
+class CourseWelcomeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        if not course.is_user_enrolled(request.user):
+            return redirect('enroll_in_course', course_slug=course_slug)
+        return Response({'course': course})
+
+class ModuleDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_slug, module_id):
+        course = get_object_or_404(Course, slug=course_slug)
+        if not course.is_user_enrolled(request.user):
+            return redirect('enroll_in_course', course_slug=course_slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        return Response({'module': module, 'course': course})
+
+class LessonDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_slug, module_id, lesson_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        if not course.is_user_enrolled(request.user):
+            return redirect('enroll_in_course', course_slug=course_slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        lesson = get_object_or_404(Lesson, slug=lesson_slug, module=module)
+        return Response({'lesson': lesson, 'course': course})
+
+class ExamDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_slug, module_id, exam_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        if not course.is_user_enrolled(request.user):
+            return redirect('enroll_in_course', course_slug=course_slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        exam = get_object_or_404(Exam, slug=exam_slug, module=module)
+        return Response({'exam': exam, 'course': course})
+
+class ExamAttemptView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_slug, module_id, exam_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        if not course.is_user_enrolled(request.user):
+            return redirect('enroll_in_course', course_slug=course_slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        exam = get_object_or_404(Exam, slug=exam_slug, module=module)
+        # Handle exam attempt logic here (e.g., displaying questions, submitting answers)
+        return Response({'exam': exam, 'course': course})
+
+    def post(self, request, course_slug, module_id, exam_slug):
+        # Handle exam submission logic here
+        pass
+
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
