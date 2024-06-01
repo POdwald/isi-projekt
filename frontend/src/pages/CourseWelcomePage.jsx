@@ -105,7 +105,7 @@ const CourseWelcomePage = () => {
                 <Typography variant="h4" gutterBottom>
                     {course.title}
                 </Typography>
-                <Typography variant="body1" gutterBottom>
+                <Typography sx={{ mb: 4}} variant="body1" gutterBottom>
                     {course.description}
                 </Typography>
                 {modules.map((module) => (

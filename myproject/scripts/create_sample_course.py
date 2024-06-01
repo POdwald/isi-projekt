@@ -32,7 +32,7 @@ Lesson.objects.create(
 Lesson.objects.create(
     module=module1,
     title="Setting up Python",
-    content_type="text",
+    content_type="markdown",
     content="""
 # Setting up Python
 
@@ -57,7 +57,7 @@ Lesson.objects.create(
 Lesson.objects.create(
     module=module2,
     title="Data Types in Python",
-    content_type="text",
+    content_type="markdown",
     content="""
 # Data Types in Python
 
@@ -82,18 +82,14 @@ exam = Exam.objects.create(
 Question.objects.create(
     exam=exam,
     question_text="What is the output of `print(3 + 2)`?",
-    choices={
-        'choices': ['3', '5', '7', '10']
-    },
+    choices=['3', '5', '7', '10'],
     correct_answer=1  # '5' is the correct answer
 )
 
 Question.objects.create(
     exam=exam,
     question_text="Which data type is used to store a sequence of characters?",
-    choices={
-        'choices': ['Integer', 'Float', 'String', 'List']
-    },
+    choices=['Integer', 'Float', 'String', 'List'],
     correct_answer=2  # 'String' is the correct answer
 )
 

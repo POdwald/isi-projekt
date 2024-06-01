@@ -65,10 +65,18 @@ class Exam(models.Model):
             self.slug = slugify(self.title)
         super(Exam, self).save(*args, **kwargs)
 
+class ExamAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    answers = models.JSONField()
+    correct_answers = models.JSONField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
 class Question(models.Model):
     exam = models.ForeignKey(Exam, related_name='questions', on_delete=models.CASCADE)
     question_text = models.TextField()
-    choices = models.JSONField()
+    choices = models.JSONField(default=list)
     correct_answer = models.IntegerField()
 
 class UserProgress(models.Model):

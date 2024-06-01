@@ -1,7 +1,7 @@
 import { List, ListItem, ListItemText, Button, Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const SidebarMenu = ({ activeItem, menuItems, handleAddModule, handleMenuClick, handleDeleteItem }) => {
+const CourseCreationSidebar = ({ activeItem, menuItems, handleAddModule, handleMenuClick, handleDeleteItem }) => {
     return (
         <Box sx={{ width: '200px', borderRight: '1px solid gray', padding: '10px' }}>
             <List>
@@ -10,7 +10,7 @@ const SidebarMenu = ({ activeItem, menuItems, handleAddModule, handleMenuClick, 
                         {(item.type === 'module') && (
                             <hr/>
                         )}
-                        <ListItem button onClick={() => handleMenuClick(item)}>
+                        <ListItem onClick={() => handleMenuClick(item)}>
                             <ListItemText
                                 primary={item.label}
                                 primaryTypographyProps={
@@ -43,4 +43,4 @@ const SidebarMenu = ({ activeItem, menuItems, handleAddModule, handleMenuClick, 
     );
 };
 
-export default SidebarMenu;
+export default CourseCreationSidebar;

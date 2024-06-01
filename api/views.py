@@ -5,14 +5,15 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status, viewsets, permissions
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import Course, Module, Lesson, Exam, Question, UserProgress, Enrollment
+from .models import Course, Module, Lesson, Exam, ExamAttempt, Question, UserProgress, Enrollment
 from .serializers import (
-    CourseSerializer, ModuleSerializer, LessonSerializer, ExamSerializer,
-    QuestionSerializer, UserProgressSerializer, UserSerializer
+    CourseSerializer, ModuleSerializer, LessonSerializer, ExamSerializer, ExamAttemptSerializer,
+    ExamResultSerializer, QuestionSerializer, UserProgressSerializer, UserSerializer
 )
 
 User = get_user_model()
@@ -151,54 +152,75 @@ class CourseWelcomeView(APIView):
         course = get_object_or_404(Course, slug=course_slug)
         return Response({'course': course})
 
-class ModuleDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, course_slug, module_id):
-        course = get_object_or_404(Course, slug=course_slug)
-        if not course.is_user_enrolled(request.user):
-            return redirect('enroll_in_course', course_slug=course_slug)
-        module = get_object_or_404(Module, id=module_id, course=course)
-        return Response({'module': module, 'course': course})
-
 class LessonDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, course_slug, module_id, lesson_slug):
+    def get(self, request, course_slug, module_slug, lesson_slug):
         course = get_object_or_404(Course, slug=course_slug)
-        if not course.is_user_enrolled(request.user):
-            return redirect('enroll_in_course', course_slug=course_slug)
-        module = get_object_or_404(Module, id=module_id, course=course)
+        module = get_object_or_404(Module, slug=module_slug, course=course)
         lesson = get_object_or_404(Lesson, slug=lesson_slug, module=module)
-        return Response({'lesson': lesson, 'course': course})
+        serializer = LessonSerializer(lesson)
+        return Response(serializer.data)
 
 class ExamDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, course_slug, module_id, exam_slug):
+    def get(self, request, course_slug, module_slug, exam_slug):
         course = get_object_or_404(Course, slug=course_slug)
-        if not course.is_user_enrolled(request.user):
-            return redirect('enroll_in_course', course_slug=course_slug)
-        module = get_object_or_404(Module, id=module_id, course=course)
+        module = get_object_or_404(Module, slug=module_slug, course=course)
         exam = get_object_or_404(Exam, slug=exam_slug, module=module)
-        return Response({'exam': exam, 'course': course})
+        serializer = ExamSerializer(exam)
+        return Response(serializer.data)
 
 class ExamAttemptView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, course_slug, module_id, exam_slug):
-        course = get_object_or_404(Course, slug=course_slug)
-        if not course.is_user_enrolled(request.user):
-            return redirect('enroll_in_course', course_slug=course_slug)
-        module = get_object_or_404(Module, id=module_id, course=course)
-        exam = get_object_or_404(Exam, slug=exam_slug, module=module)
-        # Handle exam attempt logic here (e.g., displaying questions, submitting answers)
-        return Response({'exam': exam, 'course': course})
+    def post(self, request, course_slug, module_slug, exam_slug):
+        try:
+            module = get_object_or_404(Module, slug=module_slug, course__slug=course_slug)
+            exam = get_object_or_404(Exam, slug=exam_slug, module=module)
+            answers = request.data.get('answers', {})
 
-    def post(self, request, course_slug, module_id, exam_slug):
-        # Handle exam submission logic here
-        pass
+            correct_answers = 0
+            total_questions = exam.questions.count()
+            correct_answer_ids = []
 
+            for question in exam.questions.all():
+                correct_answer_id = str(question.correct_answer)
+                user_answer_id = answers.get(str(question.id))
+
+                if user_answer_id == correct_answer_id:
+                    correct_answers += 1
+                    correct_answer_ids.append(question.id)
+                
+            print('correct_answers', correct_answers)
+            score = (correct_answers / total_questions) * 100
+            
+            # Create or get the ExamAttempt instance
+            attempt = ExamAttempt.objects.create(
+                user=request.user,
+                exam=exam,
+                answers=answers,
+                correct_answers=correct_answer_ids,
+                score=score
+            )
+            serializer = ExamAttemptSerializer(attempt)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+
+class ExamResultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        attempts = ExamAttempt.objects.filter(user=request.user)
+        latest_attempt = attempts.order_by('-submitted_at').first()
+
+        if latest_attempt:
+            serializer = ExamResultSerializer(latest_attempt)
+            return Response(serializer.data)
+        else:
+            return Response({"error": "No attempts found"}, status=status.HTTP_404_NOT_FOUND)
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()

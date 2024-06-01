@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { createCourse } from '../utils/apiService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import SidebarMenu from '../components/SidebarMenu';
+import CourseCreationSidebar from '../components/CourseCreationSidebar';
 import CreateCourseForm from '../components/CreateCourseForm';
 import CreateModuleForm from '../components/CreateModuleForm';
 import CreateLessonForm from '../components/CreateLessonForm';
@@ -148,7 +148,7 @@ const CreateCoursePage = () => {
                         <Typography variant="h4">Create Course</Typography>
                         <Grid container spacing={2}>
                             <Grid item>
-                                <SidebarMenu
+                                <CourseCreationSidebar
                                     activeItem={activeItem}
                                     menuItems={menuItems}
                                     handleAddModule={handleAddModule}

@@ -159,27 +159,21 @@ frontend_exam = Exam.objects.create(
 Question.objects.create(
     exam=frontend_exam,
     question_text="What does HTML stand for?",
-    choices={
-        'choices': ['HyperText Markup Language', 'Hyperlink and Text Markup Language', 'Hyperlink Transfer Markup Language', 'Home Tool Markup Language']
-    },
+    choices=['HyperText Markup Language', 'Hyperlink and Text Markup Language', 'Hyperlink Transfer Markup Language', 'Home Tool Markup Language'],
     correct_answer=0  # 'HyperText Markup Language' is the correct answer
 )
 
 Question.objects.create(
     exam=frontend_exam,
     question_text="What is the purpose of CSS?",
-    choices={
-        'choices': ['To define the structure of a web page', 'To describe the presentation of a web page', 'To add interactivity to a web page', 'To handle server-side logic']
-    },
+    choices=['To define the structure of a web page', 'To describe the presentation of a web page', 'To add interactivity to a web page', 'To handle server-side logic'],
     correct_answer=1  # 'To describe the presentation of a web page' is the correct answer
 )
 
 Question.objects.create(
     exam=frontend_exam,
     question_text="Which HTML tag is used to create a hyperlink?",
-    choices={
-        'choices': ['<link>', '<a>', '<href>', '<url>']
-    },
+    choices=['<link>', '<a>', '<href>', '<url>'],
     correct_answer=1  # '<a>' is the correct answer
 )
 

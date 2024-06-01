@@ -6,7 +6,7 @@ import CourseCard from '../components/CourseCard';
 import { api } from '../utils/apiService';
 import { useAuth } from '../contexts/AuthContext';
 
-const CoursesPage = () => {
+const CourseListPage = () => {
     const [courses, setCourses] = useState([]);
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -96,4 +96,4 @@ const CoursesPage = () => {
     );
 };
 
-export default CoursesPage;
+export default CourseListPage;

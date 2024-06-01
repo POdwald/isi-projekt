@@ -116,27 +116,21 @@ supervised_learning_exam = Exam.objects.create(
 Question.objects.create(
     exam=supervised_learning_exam,
     question_text="What is the goal of supervised learning?",
-    choices={
-        'choices': ['To classify data into predefined categories', 'To learn from unlabeled data', 'To predict an outcome based on input data', 'To group similar data points together']
-    },
+    choices=['To classify data into predefined categories', 'To learn from unlabeled data', 'To predict an outcome based on input data', 'To group similar data points together'],
     correct_answer=2  # 'To predict an outcome based on input data' is the correct answer
 )
 
 Question.objects.create(
     exam=supervised_learning_exam,
     question_text="Which algorithm is commonly used for regression problems?",
-    choices={
-        'choices': ['K-means clustering', 'Logistic regression', 'Decision trees', 'Linear regression']
-    },
+    choices=['K-means clustering', 'Logistic regression', 'Decision trees', 'Linear regression'],
     correct_answer=3  # 'Linear regression' is the correct answer
 )
 
 Question.objects.create(
     exam=supervised_learning_exam,
     question_text="What is the main difference between classification and regression?",
-    choices={
-        'choices': ['Classification predicts categories, while regression predicts numerical values', 'Classification predicts numerical values, while regression predicts categories', 'There is no difference', 'They both use the same algorithms']
-    },
+    choices=['Classification predicts categories, while regression predicts numerical values', 'Classification predicts numerical values, while regression predicts categories', 'There is no difference', 'They both use the same algorithms'],
     correct_answer=0  # 'Classification predicts categories, while regression predicts numerical values' is the correct answer
 )
 

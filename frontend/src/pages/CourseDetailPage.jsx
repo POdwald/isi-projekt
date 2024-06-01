@@ -4,9 +4,11 @@ import { api } from '../utils/apiService';
 import { Typography, Grid, Paper, Divider, Button, Container, Box, CircularProgress } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../contexts/AuthContext';
 
 const CourseDetailPage = () => {
     const { courseSlug } = useParams();
+    const { isAuthenticated } = useAuth();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -48,6 +50,20 @@ const CourseDetailPage = () => {
                 <Container sx={{ mb: 4 }}>
                     <Typography variant="h4" align="center" sx={{ mt: 4 }}>
                         Loading course...
+                    </Typography>
+                </Container>
+                <Footer />
+            </>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <>
+                <Header />
+                <Container sx={{ mb: 4 }}>
+                    <Typography variant="h4" align="center" sx={{ mt: 4 }}>
+                        You must login to enroll to a course.
                     </Typography>
                 </Container>
                 <Footer />

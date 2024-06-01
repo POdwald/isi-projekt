@@ -1,17 +1,15 @@
 from rest_framework import serializers
-from .models import User, Course, Module, Lesson, Exam, Question, UserProgress
+from .models import User, Course, Module, Lesson, Exam, ExamAttempt, Question, UserProgress
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
-
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = '__all__'
-
+        fields = ['id', 'question_text', 'choices', 'correct_answer']
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,9 +17,11 @@ class LessonSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ExamSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+
     class Meta:
         model = Exam
-        fields = '__all__'
+        fields = ['id', 'title', 'slug', 'questions']  # Only include fields necessary for the exam
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -29,6 +29,16 @@ class ExamSerializer(serializers.ModelSerializer):
         for question_data in questions_data:
             Question.objects.create(exam=exam, **question_data)
         return exam
+
+class ExamAttemptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamAttempt
+        fields = ['id', 'user', 'exam', 'answers', 'submitted_at']
+
+class ExamResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamAttempt
+        fields = ['id', 'user', 'exam', 'answers', 'correct_answers', 'score', 'submitted_at']
 
 class ModuleSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True)
