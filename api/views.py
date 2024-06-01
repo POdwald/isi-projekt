@@ -72,10 +72,38 @@ def create_course(request):
 def enroll_in_course(request, course_slug):
     course = get_object_or_404(Course, slug=course_slug)
     enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
+    
+    if created or not UserProgress.objects.filter(user=request.user, course=course).exists():
+        modules = Module.objects.filter(course=course)
+        for module in modules:
+            lessons = Lesson.objects.filter(module=module)
+            for lesson in lessons:
+                UserProgress.objects.create(
+                    user=request.user,
+                    course=course,
+                    module=module,
+                    lesson=lesson
+                )
+            exams = Exam.objects.filter(module=module)
+            for exam in exams:
+                UserProgress.objects.create(
+                    user=request.user,
+                    course=course,
+                    module=module,
+                    exam=exam
+                )
+    
     if created:
         return Response({'status': 'enrolled'})
     else:
         return Response({'status': 'already_enrolled'})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_user_enrollment(request, course_slug):
+    course = get_object_or_404(Course, slug=course_slug)
+    is_enrolled = Enrollment.objects.filter(user=request.user, course=course).exists()
+    return Response({'isEnrolled': is_enrolled})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -85,6 +113,30 @@ def enrolled_courses(request):
     courses = Course.objects.filter(id__in=enrolled_courses)
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def course_progress(request, course_slug):
+    try:
+        course = get_object_or_404(Course, slug=course_slug)
+        progress = UserProgress.objects.filter(user=request.user, course=course)
+        if not progress.exists():
+            return Response({'error': 'No progress found for this course'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UserProgressSerializer(progress, many=True)
+        return Response(serializer.data)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+### TODO: DELETE / UPDATE THIS DEBUG VIEW FOR PRODUCTION OR SOMETHING.
+@api_view(['GET'])
+def remove_enrollment(request, course_slug):
+    admin_user = User.objects.get(username='admin')
+    enrollment = get_object_or_404(Enrollment, user=admin_user, course__slug=course_slug)
+    enrollment.delete()
+    return Response({'status': 'enrollment_removed'})
 
 class CourseDetailView(APIView):
     def get(self, request, course_slug):
@@ -97,8 +149,6 @@ class CourseWelcomeView(APIView):
 
     def get(self, request, course_slug):
         course = get_object_or_404(Course, slug=course_slug)
-        if not course.is_user_enrolled(request.user):
-            return redirect('enroll_in_course', course_slug=course_slug)
         return Response({'course': course})
 
 class ModuleDetailView(APIView):

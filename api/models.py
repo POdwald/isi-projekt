@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 class User(AbstractUser):
     # Add any additional fields or methods here
@@ -35,6 +36,12 @@ class Module(models.Model):
     course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
+    slug = models.SlugField(max_length=255, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Module, self).save(*args, **kwargs)
 
 class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
@@ -72,3 +79,14 @@ class UserProgress(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, null=True, blank=True)
     completed = models.BooleanField(default=False)
     score = models.FloatField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.lesson and self.exam:
+            raise ValidationError("A progress record can't be tied to both a lesson and an exam.")
+        super(UserProgress, self).save(*args, **kwargs)
+
+    def mark_completed(self, score=None):
+        self.completed = True
+        if score is not None:
+            self.score = score
+        self.save()
