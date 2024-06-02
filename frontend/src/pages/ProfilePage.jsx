@@ -33,10 +33,10 @@ const ProfilePage = () => {
             <Typography variant="body1" gutterBottom>
               Email: {user.email}
             </Typography>
-            <Button variant="contained" onClick={handleChangePassword}>
+            <Button variant="contained" onClick={handleChangePassword} sx={{ display: 'block', mt: 1 }}>
               Change Your Password
             </Button>
-            <Button variant="contained" onClick={handleCreateCourse}>
+            <Button variant="contained" onClick={handleCreateCourse} sx={{ display: 'block', mt: 1 }}>
               Create a course
             </Button>
           </Box>

@@ -8,6 +8,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import useEnrollment from '../hooks/useEnrollment';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ConfirmationModal from '../components/ConfimationModal';
 
 const CourseWelcomePage = () => {
     const { courseSlug } = useParams();
@@ -17,6 +18,7 @@ const CourseWelcomePage = () => {
     const [progress, setProgress] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const { isEnrolled, loading: enrollmentLoading } = useEnrollment();
 
     useEffect(() => {
@@ -48,8 +50,13 @@ const CourseWelcomePage = () => {
 
     const handleUnenroll = async () => {
         if (!isEnrolled) {
-            return
+            return;
         }
+        setShowConfirmationModal(true);
+    };
+
+    const handleConfirmUnenroll = async () => {
+        setShowConfirmationModal(false);
         try {
             const response = await api.post(`/unenroll/${courseSlug}/`);
             navigateTo('/courses');
@@ -171,6 +178,11 @@ const CourseWelcomePage = () => {
                 >
                     Unenroll from Course
                 </Button>
+                <ConfirmationModal
+                    open={showConfirmationModal}
+                    onClose={() => setShowConfirmationModal(false)}
+                    onConfirm={handleConfirmUnenroll}
+                />
             </Container>
             <Footer />
         </>
