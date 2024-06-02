@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Grid } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { createCourse } from '../utils/apiService';
+import { api } from '../utils/apiService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CourseCreationSidebar from '../components/CourseCreationSidebar';
@@ -98,7 +98,8 @@ const CreateCoursePage = () => {
     
     const handleSubmit = async () => {
         try {
-            await createCourse(courseData);
+            console.log(courseData);
+            const response = await api.post('/create_course/', courseData);
             setCourseData({ title: '', description: '', category: '', modules: [] });
             setMenuItems([{ label: 'Overview', type: 'overview' }]);
             localStorage.removeItem('courseData');

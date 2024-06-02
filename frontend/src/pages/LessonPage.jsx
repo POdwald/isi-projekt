@@ -53,7 +53,6 @@ const LessonPage = () => {
 
     const handleCompleteLesson = async () => {
         try {
-            console.log(courseSlug, moduleSlug, lessonSlug);
             const response = await api.post(`complete_lesson/${courseSlug}/${moduleSlug}/${lessonSlug}/`);
             setIsCompleted(true);
         } catch (error) {
@@ -105,7 +104,6 @@ const LessonPage = () => {
                 <CourseNavigationSidebar />
                 <Box sx={{ ml: 4 }}>
                     <Typography sx={{ mb: 4 }} variant="h4">{lesson.title}</Typography>
-                    {console.log(lesson.content_type)}
                     {lesson.content_type === 'markdown' && (
                         <Paper elevation={3} sx={{ p: 3, maxWidth: '800px', width: '100%', mb: 4 }}>
                             <ReactMarkdown>{lesson.content}</ReactMarkdown>

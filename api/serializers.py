@@ -14,14 +14,14 @@ class QuestionSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = ['id', 'title', 'slug', 'content_type', 'content']
 
 class ExamSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam
-        fields = ['id', 'title', 'slug', 'questions', 'passing_score']  # Only include fields necessary for the exam
+        fields = ['id', 'title', 'slug', 'questions', 'passing_score']
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -46,7 +46,7 @@ class ModuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = '__all__'
+        fields = ['id', 'title', 'slug', 'description', 'lessons', 'exams']
 
     def create(self, validated_data):
         lessons_data = validated_data.pop('lessons')
@@ -72,13 +72,13 @@ class CourseSerializer(serializers.ModelSerializer):
         modules_data = validated_data.pop('modules')
         course = Course.objects.create(**validated_data)
         for module_data in modules_data:
-            lessons_data = module_data.pop('lessons')
-            exams_data = module_data.pop('exams')
+            lessons_data = module_data.pop('lessons', [])
+            exams_data = module_data.pop('exams', [])
             module = Module.objects.create(course=course, **module_data)
             for lesson_data in lessons_data:
                 Lesson.objects.create(module=module, **lesson_data)
             for exam_data in exams_data:
-                questions_data = exam_data.pop('questions')
+                questions_data = exam_data.pop('questions', [])
                 exam = Exam.objects.create(module=module, **exam_data)
                 for question_data in questions_data:
                     Question.objects.create(exam=exam, **question_data)
