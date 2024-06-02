@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import CourseViewSet, ModuleViewSet, LessonViewSet, ExamViewSet, QuestionViewSet, UserProgressViewSet
 from .views import signup, user_profile, create_course, enroll_in_course, remove_enrollment, enrolled_courses, check_user_enrollment, course_progress, complete_lesson, complete_exam
-from .views import CourseDetailView, CourseWelcomeView, LessonDetailView, ExamDetailView, ExamAttemptView, ExamResultView
+from .views import ChangeEmailView, ChangePasswordView, CourseDetailView, CourseWelcomeView, LessonDetailView, ExamDetailView, ExamAttemptView, ExamResultView
 
 router = DefaultRouter()
 router.register(r'courses', CourseViewSet)
@@ -18,6 +18,8 @@ urlpatterns = [
     path('signup/', signup, name='signup'),
     path('profile/', user_profile, name='user_profile'),
     path('create_course/', create_course, name='create_course'),
+    path('change-email/', ChangeEmailView.as_view(), name='change_email'),
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('learn/<slug:course_slug>/', CourseDetailView.as_view(), name='course_detail'),
     path('learn/<slug:course_slug>/home/welcome/', CourseWelcomeView.as_view(), name='course_welcome'),
     path('learn/<slug:course_slug>/module/<slug:module_slug>/lesson/<slug:lesson_slug>/', LessonDetailView.as_view(), name='lesson_detail'),

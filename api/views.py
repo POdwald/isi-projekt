@@ -175,6 +175,26 @@ def complete_exam(request, course_slug, module_slug, exam_slug):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ChangeEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        new_email = request.data.get('email')
+        user.email = new_email
+        user.save()
+        return Response(UserSerializer(user).data)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        new_password = request.data.get('password')
+        user.set_password(new_password)
+        user.save()
+        return Response(UserSerializer(user).data)
+
 class CourseDetailView(APIView):
     def get(self, request, course_slug):
         course = get_object_or_404(Course, slug=course_slug)
