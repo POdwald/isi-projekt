@@ -152,7 +152,8 @@ REST (Representational State Transfer) is an architectural style for designing n
 # Create an exam for Module 2
 frontend_exam = Exam.objects.create(
     module=module2_web,
-    title="Frontend Development Exam"
+    title="Frontend Development Exam",
+    passing_score=(2 / 3) * 100
 )
 
 # Create questions for the exam

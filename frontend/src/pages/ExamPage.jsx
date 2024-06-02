@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Typography, Container, Button, Box } from '@mui/material';
+import { Typography, Container, Button, Box, Divider } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../utils/apiService';
 import useEnrollment from '../hooks/useEnrollment';
@@ -14,17 +14,34 @@ const ExamPage = () => {
     const [exam, setExam] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isCompleted, setIsCompleted] = useState(false);
     const { isEnrolled, loading: enrollmentLoading } = useEnrollment();
 
     useEffect(() => {
         const fetchExam = async () => {
             try {
+                setIsCompleted(false);
                 const response = await api.get(`/learn/${courseSlug}/module/${moduleSlug}/exam/${examSlug}/`);
                 setExam(response.data);
+                fetchExamProgress(response.data);
             } catch (error) {
                 setError(error);
             }
             setLoading(false);
+        };
+
+        const fetchExamProgress = async (examData) => {
+            try {
+                const examId = examData.id
+                const response = await api.get(`/user_progress/${courseSlug}/`);
+                
+                const examProgress = response.data.find(entry => entry.exam === examId);
+                if (examProgress && examProgress.completed) {
+                    setIsCompleted(true);
+                }
+            } catch (error) {
+                setError(error);
+            }
         };
 
         if (isEnrolled) {
@@ -69,6 +86,10 @@ const ExamPage = () => {
                 <Box sx={{ ml: 4 }}>
                     <Typography sx={{ mb: 4 }} variant="h4">{exam.title}</Typography>
                     <Typography variant="body1">{exam.description}</Typography>
+                    <Divider />
+                    <Typography sx={{ mt: 2 }} variant="body1">
+                        Status: {isCompleted ? 'Completed!' : 'Not completed'}
+                    </Typography>
                     <Button component={Link} to={`/learn/${courseSlug}/module/${moduleSlug}/exam/${examSlug}/attempt`} variant="contained" color="primary" sx={{ mt: 4 }}>
                         Start Exam
                     </Button>

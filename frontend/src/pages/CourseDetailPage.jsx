@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../utils/apiService';
 import { Typography, Grid, Paper, Divider, Button, Container, Box, CircularProgress } from '@mui/material';
 import Header from '../components/Header';
@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 const CourseDetailPage = () => {
     const { courseSlug } = useParams();
     const { isAuthenticated } = useAuth();
+    const navigateTo = useNavigate();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -35,7 +36,8 @@ const CourseDetailPage = () => {
         setEnrolling(true);
         try {
             const response = await api.post(`/enroll/${courseSlug}/`);
-            setIsEnrolled(true); // Update isEnrolled state upon successful enrollment
+            setIsEnrolled(true);
+            navigateTo(`/learn/${courseSlug}/home/welcome`)
         } catch (error) {
             setError(error);
         } finally {

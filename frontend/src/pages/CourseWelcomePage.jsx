@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../utils/apiService';
 import { Typography, Container, Box, Button, Grid, Paper, List, ListItem, ListItemText, LinearProgress, Divider } from '@mui/material';
 import { VideoLibrary, Assignment, Book } from '@mui/icons-material';
@@ -11,6 +11,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 const CourseWelcomePage = () => {
     const { courseSlug } = useParams();
+    const navigateTo = useNavigate();
     const [course, setCourse] = useState(null);
     const [modules, setModules] = useState([]);
     const [progress, setProgress] = useState([]);
@@ -44,6 +45,18 @@ const CourseWelcomePage = () => {
             fetchProgress();
         }
     }, [courseSlug, isEnrolled]);
+
+    const handleUnenroll = async () => {
+        if (!isEnrolled) {
+            return
+        }
+        try {
+            const response = await api.post(`/unenroll/${courseSlug}/`);
+            navigateTo('/courses');
+        } catch (error) {
+            setError(error);
+        }
+    };
 
     if (loading || enrollmentLoading) {
         return (
@@ -85,14 +98,22 @@ const CourseWelcomePage = () => {
             <Box key={module.id} sx={{ mt: 4 }}>
                 <Typography variant="h5">{module.title}</Typography>
                 <Typography variant="body1" sx={{ mt: 1, mb: 2 }}>{module.description}</Typography>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    Lessons: {completedLessons} / {totalLessons}
-                </Typography>
-                <LinearProgress variant="determinate" value={(completedLessons / totalLessons) * 100} sx={{ mb: 2 }} />
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    Exams: {completedExams} / {totalExams}
-                </Typography>
-                <LinearProgress variant="determinate" value={(completedExams / totalExams) * 100} sx={{ mb: 4 }} />
+                {totalLessons > 0 && (
+                    <>
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Lessons: {completedLessons} / {totalLessons}
+                        </Typography>
+                        <LinearProgress variant="determinate" value={(completedLessons / totalLessons) * 100} sx={{ mb: 2 }} />
+                    </>
+                )}
+                {totalExams > 0 && (
+                    <>
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Exams: {completedExams} / {totalExams}
+                        </Typography>
+                        <LinearProgress variant="determinate" value={(completedExams / totalExams) * 100} sx={{ mb: 4 }} />
+                    </>
+                )}
                 <Divider />
             </Box>
         );
@@ -141,6 +162,15 @@ const CourseWelcomePage = () => {
                         </Button>
                     </Grid>
                 </Grid>
+                <Button
+                    fullWidth
+                    variant="outlined"
+                    color="error"
+                    onClick={handleUnenroll}
+                    sx={{ mt: 2 }}
+                >
+                    Unenroll from Course
+                </Button>
             </Container>
             <Footer />
         </>

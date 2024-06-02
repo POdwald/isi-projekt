@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { List, ListItem, ListItemIcon, ListItemText, Box, Divider } from '@mui/material';
-import { Book, VideoLibrary, Assignment } from '@mui/icons-material'; // Import the necessary icons
+import { List, ListItem, ListItemIcon, ListItemText, Box, Divider, Button } from '@mui/material';
+import { Book, VideoLibrary, Assignment, ArrowBack } from '@mui/icons-material'; // Import the necessary icons
 import { Link, useParams } from 'react-router-dom'; // Import the Link component and useParams hook
 import { api } from '../utils/apiService'; // Import the API service
 import useEnrollment from '../hooks/useEnrollment';
@@ -32,6 +32,9 @@ const CourseNavigationSidebar = () => {
     return (
         <Box sx={{ width: '300px', borderRight: '1px solid gray', padding: '5px'}}>
             <List>
+                <Link to={`/learn/${courseSlug}/home/welcome`}>
+                    <Button startIcon={<ArrowBack />} variant="outlined" sx={{ marginBottom: '10px' }}>Back to Course</Button>
+                </Link>
                 {modules.map((module, index) => (
                     <Box key={index}>
                         <Divider />

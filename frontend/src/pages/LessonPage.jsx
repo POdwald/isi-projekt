@@ -12,6 +12,7 @@ import CourseNavigationSidebar from '../components/CourseNavigationSidebar';
 
 const LessonPage = () => {
     const { courseSlug, moduleSlug, lessonSlug } = useParams();
+    const [isCompleted, setIsCompleted] = useState(false);
     const [lesson, setLesson] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -20,19 +21,46 @@ const LessonPage = () => {
     useEffect(() => {
         const fetchLesson = async () => {
             try {
+                setIsCompleted(false);
                 const response = await api.get(`/learn/${courseSlug}/module/${moduleSlug}/lesson/${lessonSlug}/`);
                 setLesson(response.data);
+                fetchLessonProgress(response.data)
+                
             } catch (error) {
                 setError(error);
             }
             setLoading(false);
         };
-
+    
+        const fetchLessonProgress = async (lessonData) => {
+            try {
+                const lessonId = lessonData.id
+                const response = await api.get(`/user_progress/${courseSlug}/`);
+                
+                const lessonProgress = response.data.find(entry => entry.lesson === lessonId);
+                if (lessonProgress && lessonProgress.completed) {
+                    setIsCompleted(true);
+                }
+            } catch (error) {
+                setError(error);
+            }
+        };
+    
         if (isEnrolled) {
             fetchLesson();
         }
-        
     }, [courseSlug, moduleSlug, lessonSlug, isEnrolled]);
+
+    const handleCompleteLesson = async () => {
+        try {
+            console.log(courseSlug, moduleSlug, lessonSlug);
+            const response = await api.post(`complete_lesson/${courseSlug}/${moduleSlug}/${lessonSlug}/`);
+            setIsCompleted(true);
+        } catch (error) {
+            console.error('Failed to complete lesson:', error);
+            setError(error.message || 'An unexpected error occurred.');
+        }
+    }
 
     if (loading || enrollmentLoading) {
         return (
@@ -91,9 +119,16 @@ const LessonPage = () => {
                     {lesson.content_type === 'video' && (
                         <YouTube videoId={youtubeVideoId} />
                     )}
-                    <Button variant="contained" color="primary" sx={{ mt: 4 }}>
-                        Complete Lesson
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 4 }}
+                        onClick={handleCompleteLesson}
+                        disabled={isCompleted}
+                    >
+                        {isCompleted ? 'Lesson Completed' : 'Complete Lesson'}
                     </Button>
+                    {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
                 </Box>
             </Container>
             <Footer />

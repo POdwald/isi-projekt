@@ -21,7 +21,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ['id', 'title', 'slug', 'questions']  # Only include fields necessary for the exam
+        fields = ['id', 'title', 'slug', 'questions', 'passing_score']  # Only include fields necessary for the exam
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')

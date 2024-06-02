@@ -59,6 +59,7 @@ class Exam(models.Model):
     module = models.ForeignKey(Module, related_name='exams', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
+    passing_score = models.FloatField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:

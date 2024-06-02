@@ -42,16 +42,24 @@ const ExamAttemptPage = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await api.post(`/learn/${courseSlug}/module/${moduleSlug}/exam/${examSlug}/attempt/`, { answers });
-            console.log(response);
-            if (response.status === 200) {
+            // Submit the answers to the exam
+            const submitResponse = await api.post(`/learn/${courseSlug}/module/${moduleSlug}/exam/${examSlug}/attempt/`, { answers });
+            if (submitResponse.status !== 200) {
+                console.error('Error submitting exam:', submitResponse.statusText);
+                setError(submitResponse.statusText);
+                return;
+            }
+    
+            // If the submission is successful, complete the exam
+            const completeResponse = await api.post(`/complete_exam/${courseSlug}/${moduleSlug}/${examSlug}/`);
+            if (completeResponse.status === 200) {
                 navigateTo(`/learn/${courseSlug}/module/${moduleSlug}/exam/${examSlug}/score`);
             } else {
-                console.error('Error submitting exam:', response.statusText);
-                setError(response.statusText);
+                console.error('Error completing exam:', completeResponse.statusText);
+                setError(completeResponse.statusText);
             }
         } catch (error) {
-            console.error('Error submitting exam:', error);
+            console.error('Error submitting or completing exam:', error);
             setError(error.message);
         }
     };

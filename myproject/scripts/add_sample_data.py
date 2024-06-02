@@ -1,6 +1,4 @@
 import os
-from django.contrib.auth.models import User
-from api.models import Course, Module, Lesson, Exam, Question, UserProgress
 
 SCRIPTS_DIR = 'myproject/scripts'
 def execute_script(script_filename):

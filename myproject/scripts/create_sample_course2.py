@@ -109,7 +109,8 @@ K-means clustering is an unsupervised learning algorithm used to partition a dat
 # Create an exam for Module 2
 supervised_learning_exam = Exam.objects.create(
     module=module2_ml,
-    title="Supervised Learning Exam"
+    title="Supervised Learning Exam",
+    passing_score=(2 / 3) * 100
 )
 
 # Create questions for the exam

@@ -97,7 +97,6 @@ const CreateCoursePage = () => {
     };
     
     const handleSubmit = async () => {
-        console.log(courseData);
         try {
             await createCourse(courseData);
             setCourseData({ title: '', description: '', category: '', modules: [] });

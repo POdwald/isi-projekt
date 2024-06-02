@@ -75,7 +75,8 @@ Understanding these data types is fundamental to programming in Python.
 # Create an exam for Module 2
 exam = Exam.objects.create(
     module=module2,
-    title="Python Basics Exam"
+    title="Python Basics Exam",
+    passing_score=(1 / 2) * 100
 )
 
 # Create questions for the exam

@@ -131,13 +131,49 @@ def course_progress(request, course_slug):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-### TODO: DELETE / UPDATE THIS DEBUG VIEW FOR PRODUCTION OR SOMETHING.
-@api_view(['GET'])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def remove_enrollment(request, course_slug):
-    admin_user = User.objects.get(username='admin')
-    enrollment = get_object_or_404(Enrollment, user=admin_user, course__slug=course_slug)
+    course = get_object_or_404(Course, slug=course_slug)
+    enrollment = get_object_or_404(Enrollment, user=request.user, course=course)
     enrollment.delete()
+    UserProgress.objects.filter(user=request.user, course=course).delete()
     return Response({'status': 'enrollment_removed'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def complete_lesson(request, course_slug, module_slug, lesson_slug):
+    try:
+        course = get_object_or_404(Course, slug=course_slug)
+        module = get_object_or_404(Module, slug=module_slug, course=course)
+        lesson = get_object_or_404(Lesson, slug=lesson_slug, module=module)
+        user_progress  = UserProgress.objects.get(user=request.user, course=course, module=module, lesson=lesson)
+
+        user_progress.completed = True
+        user_progress.save()
+
+        return Response({'message': 'Lesson completed successfully.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def complete_exam(request, course_slug, module_slug, exam_slug):
+    try:
+        course = get_object_or_404(Course, slug=course_slug)
+        module = get_object_or_404(Module, slug=module_slug, course=course)
+        exam = get_object_or_404(Exam, slug=exam_slug, module=module)
+        attempt = ExamAttempt.objects.filter(user=request.user, exam=exam).order_by('-submitted_at').first()
+        user_progress = UserProgress.objects.get(user=request.user, course=course, module=module, exam=exam)
+        
+        if attempt.score >= exam.passing_score:
+            user_progress.completed = True
+        user_progress.score = attempt.score
+        user_progress.save()
+
+        return Response({'message': 'Lesson completed successfully.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CourseDetailView(APIView):
     def get(self, request, course_slug):

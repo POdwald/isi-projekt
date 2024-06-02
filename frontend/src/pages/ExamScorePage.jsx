@@ -78,8 +78,8 @@ const ExamScorePage = () => {
                     <Typography variant="h4" component="h1">
                         Score for {examSlug}:
                     </Typography>
-                    <Typography variant="h4" component="h1" color={attempt.score >= 70 ? 'primary' : 'error'}>
-                        {attempt.score}%
+                    <Typography variant="h4" component="h1" color={attempt.score >= exam.passing_score ? 'primary' : 'error'}>
+                        {attempt.score.toFixed(2)}%
                     </Typography>
                 </Box>
                 {exam && attempt && (
