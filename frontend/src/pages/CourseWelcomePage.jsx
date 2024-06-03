@@ -48,6 +48,13 @@ const CourseWelcomePage = () => {
         }
     }, [courseSlug, isEnrolled]);
 
+    const handleStartLearning = () => {
+        if (modules.length > 0 && modules[0].lessons.length > 0) {
+            const firstLesson = modules[0].lessons[0];
+            navigateTo(`/learn/${courseSlug}/module/${modules[0].slug}/lesson/${firstLesson.slug}`);
+        }
+    };
+
     const handleUnenroll = async () => {
         if (!isEnrolled) {
             return;
@@ -159,7 +166,7 @@ const CourseWelcomePage = () => {
                 ))}
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                        <Button fullWidth variant="contained" color="primary">
+                        <Button fullWidth variant="contained" color="primary" onClick={handleStartLearning}>
                             Start Learning
                         </Button>
                     </Grid>
